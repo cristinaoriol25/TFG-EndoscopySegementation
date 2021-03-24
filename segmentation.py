@@ -5,6 +5,7 @@ import argparse
 import ffmpeg
 import os
 import json
+import csv
 from frame import *
 from utils import *
 
@@ -29,28 +30,63 @@ def calcularHOGFrames(path):
     #frames = [frame(path,archivo) for archivo in os.listdir(path)]#os.listdir(ejemplo_dir)
     #descr= dict((f, f.descripHOG()) for f in [frame(path,archivo) for archivo in os.listdir(path)])
     print("Calculando HOG")
-    frames=[frame(path,archivo) for archivo in os.listdir(path)]
-    descr=[f.descripHOG() for f in frames]
-    return frames, descr
+    files =  os.listdir(path) #random order
+    sorted_files =  sorted(files) #order by name
+    #descr=[f.descripHOG() for f in frames]
+    with open('framesFeatures.csv', 'w') as csvfile:
+        fieldnames = ['Frame', 'HOG']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for f in sorted_files:
+            writer.writerow({'Frame': f, 'HOG': descripHOG(path, f)})
+    print("Calculado HOG")
 
 
 
 def clusterHOG(path):
-    frames,data=calcularHOGFrames(path)
-    cl=kmeans(data)
-    i=0
-    dic={}
-    for frame in frames:
-        dic[frame]=cl[i]
-        i=i+1
-    print(dic)
+    #calcularHOGFrames(path)
+    kmeansHOGCVS(path)
+    # cl=kmeans(data)
+    # i=0
+    # dic={}
+    # for frame in frames:
+    #     dic[frame]=cl[i]
+    #     i=i+1
+    # print(dic)
+
+def saveHOG(path):
+    hog=[]
+    frames=[]
+    files =  os.listdir(path) #random order
+    sorted_files =  sorted(files) #order by name
+    for file in sorted_files:  
+        f=frame(path, file)
+        f.imageHOG()
+        hog.append(f.descriptorHOG())
+        frames.append(f)
+    label=kmeans(hog)
+    with open('clusterHOG.csv', 'w') as csvfile:
+        fieldnames = ['Frame','Cluster']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        indice=0
+        for c in label:
+            writer.writerow({'Frame':frames[indice].name(),'Cluster':c})
+            path="/home/cristina/Documentos/TFG/Resultados/HOG/cluster"+str(c)+"/"
+            try:
+                os.stat(path)
+            except:
+                os.mkdir(path)
+            frames[indice].guardarFrame(path)
+            indice+=1
+
 
 
 def main(args):
     if args.video is not None:
         stream=ffmpeg.input(args.video)
         stream=ffmpeg.filter(stream, 'fps', fps=40, round = 'up')
-        stream=ffmpeg.output(stream, "/home/pazagra/Cris/Frames/prueba-%d.png", video_bitrate='5000k',sws_flags='bilinear',start_number=0)
+        stream=ffmpeg.output(stream, "/home/cristina/Documentos/Frames/Frame-%d.png", video_bitrate='5000k',sws_flags='bilinear',start_number=0)
         ffmpeg.run(stream)
     if args.videoFrames is not None:
         pathFrames=args.videoFrames 
@@ -59,6 +95,9 @@ def main(args):
             cutVideo(pathFrames, jsonPath)
     if args.pathH is not None:
         clusterHOG(args.pathH)
+    if args.guardarImH is not None:
+        saveHOG(args.guardarImH)
+
 
 
 
@@ -73,6 +112,8 @@ if __name__ == "__main__":
     parser.add_argument("-j", "--json", help="Json from the indicated video",
                         type=str, default=None)
     parser.add_argument("-hg", "--pathH", help="HOG from the indicated video",
+                        type=str, default=None)
+    parser.add_argument("-m", "--guardarImH", help="Save HOG images from the indicated video",
                         type=str, default=None)
     
     args = parser.parse_args()

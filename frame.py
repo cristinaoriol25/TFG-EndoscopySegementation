@@ -15,19 +15,21 @@ class frame():
         
 
     def imageHOG(self):
-        self.HOGimage=calculateHOG(self.frame)
-        return self.hogStimate
+        self.hogStimate,self.HOGimage=calculateHOG(self.frame)
+        path="/home/cristina/Documentos/TFG/ResultadosHOG/"+self.name()
+        cv2.imwrite(path, self.HOGimage)
 
-    def descripHOG(self):
-        hog=cv2.HOGDescriptor()
-        h=hog.compute(self.frame)
-        return h.ravel()
+
+    def descriptorHOG(self):
+        return self.hogStimate
 
 
     def mostrarFrame(self):
         cv2.imshow("Frame", self.frame)
         cv2.waitKey(0)
 
+    def guardarFrame(self, path):
+        cv2.imwrite(path+self.nameFrame, self.frame)
 
     def name(self):
         return self.nameFrame
