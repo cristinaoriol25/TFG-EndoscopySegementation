@@ -22,12 +22,12 @@ def calculateHOG(image):
 
 def kmeans(dataSet):
     print("Ejecutando kmeans")
-    kmeans=KMeans(n_clusters=4, init='k-means++',random_state=42 )
+    kmeans=KMeans(n_clusters=2, init='k-means++',random_state=42 )
     clusters=kmeans.fit_predict(dataSet)   
     return clusters
 
 
-def kmeansHOGCVS(path):
+def kmeansHOGCSV(path):
     #Usar esto para los tipos en el csv:
     #parse_dates = ['V1'] #specify the column you need for da
     #variables = pd.read_csv('date-dfki.csv', dtype={'V1': str, 'ip': np.str, 'n': np.int32}, parse_dates=parse_dates) #in data type you specify each column what format to use

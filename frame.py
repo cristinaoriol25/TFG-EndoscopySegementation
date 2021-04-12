@@ -1,5 +1,6 @@
 import cv2 
 from utils import calculateHOG
+import numpy as np
 
 
 
@@ -7,6 +8,7 @@ class frame():
 
     hogStimate=None
     HOGimage=None
+    
 
     def __init__(self, path, nFrame):
         self.path=path
@@ -16,12 +18,24 @@ class frame():
 
     def imageHOG(self):
         self.hogStimate,self.HOGimage=calculateHOG(self.frame)
-        path="/home/cristina/Documentos/TFG/ResultadosHOG/"+self.name()
-        cv2.imwrite(path, self.HOGimage)
 
 
     def descriptorHOG(self):
+        self.imageHOG()
         return self.hogStimate
+
+    def imageColor(self):
+        pixels = np.float32(self.frame.reshape(-1, 3))
+        n_colors = 5
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, .1)
+        flags = cv2.KMEANS_RANDOM_CENTERS
+        _, labels, palette = cv2.kmeans(pixels, n_colors, None, criteria, 10, flags)
+        _, counts = np.unique(labels, return_counts=True)
+        return palette[np.argmax(counts)]
+
+
+    def histogram(self):
+        return self.histogram
 
 
     def mostrarFrame(self):
