@@ -6,19 +6,28 @@ from sklearn.cluster import KMeans
 import pandas as pd
 import cv2
 import csv
+import os
 
-def descripHOG(path, image):
-    hog=cv2.HOGDescriptor()
-    frame=cv2.imread(path+image, cv2.IMREAD_COLOR)
-    h=hog.compute(frame)
-    return h.ravel()
+def indiceToName(i):
+    i=str(i)
+    name=i.rjust(6, "0")
+    f=name+".png"
+    return f
 
+def renameFrames(path):
+    for file in os.listdir(path):
+        name=file
+        name=name.split(".")
+        name=name[0].rjust(6, "0")
+        f=name+".png"
+        os.rename(path+file, path+f)
 
+def distancia_euclidea(a, b):
+    return np.sqrt(sum((abs(a) - abs(b))**2))
 
 def calculateHOG(image):
     fd, hog_image=hog(image, orientations=8, pixels_per_cell=(16,16), cells_per_block=(1,1), visualize=True, multichannel=True)
     return fd, exposure.rescale_intensity(hog_image, in_range=(0,10))
-
 
 def kmeans(dataSet):
     print("Ejecutando kmeans")
