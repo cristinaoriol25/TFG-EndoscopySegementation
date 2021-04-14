@@ -7,6 +7,51 @@ import pandas as pd
 import cv2
 import csv
 import os
+import statistics as stats
+
+#BGR
+def mediaColor(colores):
+    b=[color[0] for color in colores]
+    g=[color[1] for color in colores]
+    r=[color[2] for color in colores]
+    return [stats.mean(r), stats.mean(g), stats.mean(b)]
+
+def medianaColor(colores):
+    b=[color[0] for color in colores]
+    g=[color[1] for color in colores]
+    r=[color[2] for color in colores]
+    return [stats.median(r), stats.median(g), stats.median(b)]
+
+
+def filterClass(colores, valor, dominante):
+    return [valor[i] for i in range(0, len(colores)) if colores[i]==dominante]
+
+def dominante(colores):
+    r=0
+    g=0
+    b=0
+    for color in colores:
+        if color=='R':
+            r+=1
+        elif color == 'G':
+            g+=1
+        else:
+            b+=1
+    if r>=g and r>=b:
+        return 'R'
+    elif g>=r and g>=b:
+        return 'G'
+    else:  
+        return 'B'
+
+
+def colorClass(color):
+    if color[0] >= color[1] and color[0] >= color[2]:
+        return 'B', color[0]
+    elif color[0] <= color[1] and color[1] >= color[2]:
+        return 'G', color[1]
+    elif color[0] <= color[2] and color[2] >= color[1]:
+        return 'R', color[2]
 
 def indiceToName(i):
     i=str(i)
@@ -24,10 +69,6 @@ def renameFrames(path):
 
 def distancia_euclidea(a, b):
     return np.sqrt(sum((abs(a) - abs(b))**2))
-
-def calculateHOG(image):
-    fd, hog_image=hog(image, orientations=8, pixels_per_cell=(16,16), cells_per_block=(1,1), visualize=True, multichannel=True)
-    return fd, exposure.rescale_intensity(hog_image, in_range=(0,10))
 
 def kmeans(dataSet):
     print("Ejecutando kmeans")

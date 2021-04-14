@@ -1,6 +1,7 @@
 import cv2 
-from utils import calculateHOG
 import numpy as np
+from skimage.feature import hog
+
 
 
 
@@ -17,8 +18,7 @@ class frame():
         
 
     def imageHOG(self):
-        self.hogStimate,self.HOGimage=calculateHOG(self.frame)
-
+        self.hogStimate,self.HOGimage=hog(self.frame, orientations=8, pixels_per_cell=(16,16), cells_per_block=(1,1), visualize=True, multichannel=True)
 
     def descriptorHOG(self):
         self.imageHOG()

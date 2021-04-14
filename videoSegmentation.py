@@ -19,8 +19,10 @@ def segmentate(path, video):
     fin=-1
     check=False
     checkRatio=0
-    renameFrames("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/")
-    files =  os.listdir("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/") #random order
+    #renameFrames("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/")
+    renameFrames("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/")
+    #files =  os.listdir("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/") #random order
+    files =  os.listdir("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/") #random order
     sorted_files =  sorted(files) #order by name
     indice=0
     stop=False
@@ -28,8 +30,10 @@ def segmentate(path, video):
     while indice<len(sorted_files)-100 and not stop:
         if check:
             if ini != 1 and fin == -1:
-                f1=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(ini))
-                f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
+                # f1=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(ini))
+                # f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
+                f1=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(ini))
+                f2=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
                 if distancia_euclidea(f1.descriptorHOG(), f2.descriptorHOG()) >= 9:
                     if checkRatio <= 5:
                         checkRatio+=1
@@ -42,8 +46,10 @@ def segmentate(path, video):
                     checkRatio=0
                     ini=-1
             if ini != 1 and fin != -1:
-                f1=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(fin))
-                f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
+                # f1=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(fin))
+                # f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
+                f1=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(fin))
+                f2=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
                 if distancia_euclidea(f1.descriptorHOG(), f2.descriptorHOG()) >= 9:
                     if checkRatio <= 5:
                         checkRatio+=1
@@ -57,8 +63,10 @@ def segmentate(path, video):
                     checkRatio=0
                     fin=-1
         else:
-            f1=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice))
-            f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
+            # f1=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice))
+            # f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
+            f1=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice))
+            f2=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
             if distancia_euclidea(f1.descriptorHOG(), f2.descriptorHOG()) >= 9.5:
                 if ini == -1 and fin == -1:
                     ini=indice
@@ -79,17 +87,20 @@ def segmentate(path, video):
 def removeFrames(start, end, len, video):
     i=0
     while i < start:
-        os.remove("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
+        # os.remove("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
+        os.remove("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
         i+=1
     i=end
     while end < len :
-        os.remove("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
+        # os.remove("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
+        os.remove("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
         i+=1
 
 def removeAllFrames(start, end, video):
     i=start 
     while i<=end :
-        os.remove("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
+        # os.remove("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
+        os.remove("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
         i+=1
 
 def readFrameFromJson(jsonFile): 
@@ -116,22 +127,27 @@ def cutVideo(path, json):
 
 def toVideo(path, video):
     stream=ffmpeg.input(path+video, pattern_type='glob', framerate=40)
-    stream=ffmpeg.output(stream, "/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+video+"Segementation.webm")
+    #stream=ffmpeg.output(stream, "/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+video+"Segementation.webm")
+    stream=ffmpeg.output(stream, "/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+video+"Segementation.webm")
     ffmpeg.run(stream)
 
 def toFrames(path, video):
     stream=ffmpeg.input(path+video)
     stream=ffmpeg.filter(stream, 'fps', fps=40, round = 'up')
     try:
-        os.stat("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/")
+        #os.stat("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/")
+        os.stat("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/")
+
     except:
-        os.mkdir("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/")
-    stream=ffmpeg.output(stream, "/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/%d.png", video_bitrate='5000k',sws_flags='bilinear',start_number=0)
+        #os.mkdir("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/")
+        os.mkdir("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/")
+    #stream=ffmpeg.output(stream, "/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/%d.png", video_bitrate='5000k',sws_flags='bilinear',start_number=0)
+    stream=ffmpeg.output(stream, "/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/%d.png", video_bitrate='5000k',sws_flags='bilinear',start_number=0) 
     ffmpeg.run(stream)
     
 def main(args):
     if args.path is not None and args.video is not None:
-        toFrames(args.video, args.video)
+        toFrames(args.path, args.video)
     if args.videoFrames is not None:
         pathFrames=args.videoFrames 
         if args.json is not None:
