@@ -8,6 +8,7 @@ import json
 import csv
 from frame import *
 from utils import *
+from descriptors import *
 
 
 def segmentate(path, video):
@@ -33,13 +34,14 @@ def segmentate(path, video):
                 # f1=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(ini))
                 # f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
                 f1=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(ini))
-                f2=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
-                if distancia_euclidea(f1.descriptorHOG(), f2.descriptorHOG()) >= 9:
+                f2=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice))
+                if checkOutIn(f1, f2):
                     if checkRatio <= 5:
                         checkRatio+=1
                     else:
                         checkRatio=0
                         check=False
+                        print("Inicio encontrado: ", ini)
                     indice+=10
                 else:
                     check=False
@@ -49,8 +51,8 @@ def segmentate(path, video):
                 # f1=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(fin))
                 # f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
                 f1=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(fin))
-                f2=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
-                if distancia_euclidea(f1.descriptorHOG(), f2.descriptorHOG()) >= 9:
+                f2=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice))
+                if checkInOut(f1,f2):
                     if checkRatio <= 5:
                         checkRatio+=1
                     else:
@@ -67,17 +69,19 @@ def segmentate(path, video):
             # f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
             f1=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice))
             f2=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
-            if distancia_euclidea(f1.descriptorHOG(), f2.descriptorHOG()) >= 9.5:
-                if ini == -1 and fin == -1:
-                    ini=indice
+            if ini == -1 and fin == -1:
+                if checkOutIn(f1,f2):
                     check=True
                     checkRatio+=1
-                if ini != -1 and fin == -1:
+                    ini=indice
+                    checkRatio+=1
+            elif ini != -1 and fin == -1:
+                if checkInOut(f1, f2):
                     fin=indice
                     check=True
                     checkRatio+=1
             indice+=10
-        if indice%500 == 0 : print("Actual frames searched: ", indice)
+        if indice%5000 == 0 : print("Frame analyzed: ", indice)
     print("Search ended, start frame: ", ini, " end frame: ", fin)
     if ini == -1 : ini=0
     if fin==-1 : fin=len(sorted_files)-100
@@ -91,7 +95,7 @@ def removeFrames(start, end, len, video):
         os.remove("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
         i+=1
     i=end
-    while end < len :
+    while i < len :
         # os.remove("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
         os.remove("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
         i+=1
@@ -100,7 +104,10 @@ def removeAllFrames(start, end, video):
     i=start 
     while i<=end :
         # os.remove("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
-        os.remove("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
+        try:
+            os.remove("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
+        except:
+            print("Indice ",i)
         i+=1
 
 def readFrameFromJson(jsonFile): 
@@ -125,11 +132,25 @@ def cutVideo(path, json):
         frame = path+str(i) +".png"    
         os.remove(frame)
 
+# def toVideo(path, video):
+#     # stream=ffmpeg.input("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/*.png")
+#     # #stream=ffmpeg.output(stream, "/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+video+"Segementation.webm")
+#     # stream=ffmpeg.output(stream, "/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+video+"Segementation.webm")
+#     # ffmpeg.run(stream)
+#     files=sorted(os.listdir('/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/'+video+'/'))
+#     (
+#     ffmpeg
+#     .input(files, pattern_type='glob', framerate=40)
+#     .filter(stream, 'fps', fps=40, round = 'up')
+#     .output('movie.webm', crf=20, preset='slower', movflags='faststart', pix_fmt='yuv420p')
+#     .view(filename='filter_graph')
+#     .run()
+#     )
+
 def toVideo(path, video):
-    stream=ffmpeg.input(path+video, pattern_type='glob', framerate=40)
-    #stream=ffmpeg.output(stream, "/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+video+"Segementation.webm")
-    stream=ffmpeg.output(stream, "/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+video+"Segementation.webm")
-    ffmpeg.run(stream)
+    os.system("cd "+path)
+    os.system("ffmpeg -framerate 40 -start_number 002700 -i '"+path+"%6d.png' -vcodec h264 "+path+video+".mov")
+    os.system("ffmpeg -i "+path+video+".mov -vcodec libvpx -qmin 0 -qmax 50 -crf 20 -b:v 200K  -s 320x240 "+path+video+".webm")
 
 def toFrames(path, video):
     stream=ffmpeg.input(path+video)
@@ -154,11 +175,11 @@ def main(args):
             jsonPath=args.json
             cutVideo(pathFrames, jsonPath)
     if args.segmentation is not None and args.video is not None:
-        start, end, len=segmentate(args.segmentation, args.video)
-        #removeFrames(start, end, len, args.video)
-        if args.result :
-            toVideo(args.segmentation, args.video)
-            removeAllFrames(start, end, args.video)
+        # start, end, len=segmentate(args.segmentation, args.video)
+        # removeFrames(start, end, len, args.video)
+        #renameFramesRestart('/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/'+args.video+'/')
+        toVideo("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+args.video+"/", args.video)
+        
 
 
     

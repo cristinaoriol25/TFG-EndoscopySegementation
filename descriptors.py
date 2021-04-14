@@ -8,9 +8,40 @@ from utils import *
 import statistics as stats
 
 
-def calculateHOG(image):
-    fd, hog_image=hog(image, orientations=8, pixels_per_cell=(16,16), cells_per_block=(1,1), visualize=True, multichannel=True)
-    return fd, exposure.rescale_intensity(hog_image, in_range=(0,10))
+def checkOutIn(frame1, frame2, deb=False):
+    d=distancia_euclidea(frame1.descriptorHOG(), frame2.descriptorHOG())
+    if deb:
+            print("D",d)
+    if 11>=d>=9:
+        c1=colorClass(frame1.imageColor())
+        c2=colorClass(frame2.imageColor())
+        if deb:
+            print(c1, "   ", c2)
+        if c1[0]!='R' and c2[0]=='R':
+            return True
+        else:
+            return False
+    else:
+        return False
+
+def checkInOut(frame1, frame2, deb=False):
+    d=distancia_euclidea(frame1.descriptorHOG(), frame2.descriptorHOG())
+    if d>8.8:
+        c1=colorClass(frame1.imageColor())
+        c2=colorClass(frame2.imageColor())
+        if deb:
+            print(c1[0], "   ", c2[0], d)
+        if c1[0]=='R' and c2[0]!='R':
+            return True
+        else:
+            # if not checkColorInside(frame2.imageColor()):
+            #     print(frame2.imageColor())
+            #     return True
+            # else:
+            return False
+    else:
+        return False
+
 
 def calculateHogEstadistic(path, tipo):
     with open("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/estadisticHog.csv", 'a') as csvfile:

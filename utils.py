@@ -44,6 +44,9 @@ def dominante(colores):
     else:  
         return 'B'
 
+def checkColorInside(color):
+    return color[0]>30 and color[1]>60 and color[2]>100
+
 
 def colorClass(color):
     if color[0] >= color[1] and color[0] >= color[2]:
@@ -66,6 +69,17 @@ def renameFrames(path):
         name=name[0].rjust(6, "0")
         f=name+".png"
         os.rename(path+file, path+f)
+
+def renameFramesRestart(path):
+    files=os.listdir(path)
+    files=sorted(files)
+    i=0
+    for file in files:
+        name=str(i)
+        name=name[0].rjust(6, "0")
+        f=name+".png"
+        os.rename(path+file, path+name)
+        i+=1
 
 def distancia_euclidea(a, b):
     return np.sqrt(sum((abs(a) - abs(b))**2))
