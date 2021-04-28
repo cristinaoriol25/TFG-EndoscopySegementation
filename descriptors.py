@@ -10,14 +10,12 @@ import statistics as stats
 
 def checkOutIn(frame1, frame2, deb=False):
     d=distancia_euclidea(frame1.descriptorHOG(), frame2.descriptorHOG())
-    if deb:
-            print("D",d)
-    if 11>=d>=9:
+    if d>=9:
         c1=colorClass(frame1.imageColor())
         c2=colorClass(frame2.imageColor())
         if deb:
-            print(c1, "   ", c2)
-        if c1[0]!='R' and c2[0]=='R':
+            print(c1, "   ", c2, " f1: ", frame1.name(), "f2: ", frame2.name())
+        if (c2[0]=='R' and c2[1]>60) or (c1[0]!='R' and c2[0]=='R' and c2[1]>30):
             return True
         else:
             return False
