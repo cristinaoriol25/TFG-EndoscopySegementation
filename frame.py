@@ -26,12 +26,11 @@ class frame():
 
     def imageColor(self):
         pixels = np.float32(self.frame.reshape(-1, 3))
-        n_colors = 5
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, .1)
-        flags = cv2.KMEANS_RANDOM_CENTERS
-        _, labels, palette = cv2.kmeans(pixels, n_colors, None, criteria, 10, flags)
-        _, counts = np.unique(labels, return_counts=True)
-        return palette[np.argmax(counts)]
+        n_colores = 5
+        criterio = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 200, .1)
+        _, etiquetas, colores = cv2.kmeans(pixels, n_colores, None, creiterio, 10, cv2.KMEANS_RANDOM_CENTERS)
+        _, max = np.unique(etiquetas, return_counts=True)
+        return colores[np.argmax(max)]
 
 
     def histogram(self):
