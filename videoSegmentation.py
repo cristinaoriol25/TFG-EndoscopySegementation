@@ -35,7 +35,81 @@ def segmentate(path, video):
                 # f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
                 f1=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(ini))
                 f2=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice))
-                if checkOutIn(f1, f2):
+                if checkOutIn(f1, f2, True):
+                    if checkRatio <= 5:
+                        checkRatio+=1
+                    else:
+                        checkRatio=0
+                        check=False
+                        print("Inicio encontrado: ", ini)
+                    indice+=10
+                else:
+                    check=False
+                    checkRatio=0
+                    ini=-1
+            if ini != 1 and fin != -1:
+                # f1=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(fin))
+                # f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
+                f1=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(fin))
+                f2=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice))
+                if checkInOut(f1,f2, True):
+                    if checkRatio <= 5:
+                        checkRatio+=1
+                    else:
+                        checkRatio=0
+                        check=False
+                        stop=True
+                    indice+=10
+                else:
+                    check=False
+                    checkRatio=0
+                    fin=-1
+        else:
+            # f1=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice))
+            # f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
+            f1=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice))
+            f2=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
+            if ini == -1 and fin == -1:
+                if checkOutIn(f1,f2, True):
+                    check=True
+                    checkRatio+=1
+                    ini=indice
+                    checkRatio+=1
+            elif ini != -1 and fin == -1:
+                if checkInOut(f1, f2, True):
+                    fin=indice
+                    check=True
+                    checkRatio+=1
+            indice+=10
+        if indice%5000 == 0 : print("Frame analyzed: ", indice)
+    print("Search ended, start frame: ", ini, " end frame: ", fin)
+    if ini == -1 : ini=0
+    if fin==-1 : fin=len(sorted_files)
+    return ini, fin, len(sorted_files)
+
+def segmentateFrames(video):
+    """
+    Transform a video into frames and calculates the hog stimate for each 10 frames searching the start and the end point of the  medical procedure
+    """
+    ini=-1
+    fin=-1
+    check=False
+    checkRatio=0
+    #renameFrames("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/")
+    #files =  os.listdir("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/") #random order
+    files =  os.listdir("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/") #random order
+    sorted_files =  sorted(files) #order by name
+    indice=0
+    stop=False
+    print("Searching the start and the end from the video: ", video)
+    while indice<len(sorted_files)-100 and not stop:
+        if check:
+            if ini != 1 and fin == -1:
+                # f1=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(ini))
+                # f2=frame("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice+10))
+                f1=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(ini))
+                f2=frame("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", indiceToName(indice))
+                if checkOutIn(f1, f2, True):
                     if checkRatio <= 5:
                         checkRatio+=1
                     else:
@@ -82,9 +156,8 @@ def segmentate(path, video):
                     checkRatio+=1
             indice+=10
         if indice%5000 == 0 : print("Frame analyzed: ", indice)
-    print("Search ended, start frame: ", ini, " end frame: ", fin)
     if ini == -1 : ini=0
-    if fin==-1 : fin=len(sorted_files)-100
+    if fin==-1 : fin=len(sorted_files)
     return ini, fin, len(sorted_files)
 
 
@@ -95,9 +168,12 @@ def removeFrames(start, end, len, video):
         os.remove("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
         i+=1
     i=end
-    while i < len :
+    while i <= len :
         # os.remove("/home/pazagra/Cris/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
-        os.remove("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
+        try:
+            os.remove("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/"+indiceToName(i))
+        except:
+            print("Indice ",i)
         i+=1
 
 def removeAllFrames(start, end, video):
@@ -131,6 +207,7 @@ def cutVideo(path, json):
     for i in toRemove:
         frame = path+str(i) +".png"    
         os.remove(frame)
+    #renameFramesRestart(path)
 
 # def toVideo(path, video):
 #     # stream=ffmpeg.input("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/*.png")
@@ -148,9 +225,8 @@ def cutVideo(path, json):
 #     )
 
 def toVideo(path, video):
-    os.system("cd "+path)
-    os.system("ffmpeg -framerate 40 -start_number 002700 -i '"+path+"%6d.png' -vcodec h264 "+path+video+".mov")
-    os.system("ffmpeg -i "+path+video+".mov -vcodec libvpx -qmin 0 -qmax 50 -crf 20 -b:v 200K  -s 320x240 "+path+video+".webm")
+    os.system("ffmpeg -framerate 40  -i '"+path+"%6d.png' -vcodec h264 "+path+video+".mov")
+    os.system("ffmpeg -i "+path+video+".mov -vcodec libvpx -qmin 0 -qmax 50 -crf 20 -b:v 200K  -s 320x240 "+path+video)
 
 def toFrames(path, video):
     stream=ffmpeg.input(path+video)
@@ -175,10 +251,23 @@ def main(args):
             jsonPath=args.json
             cutVideo(pathFrames, jsonPath)
     if args.segmentation is not None and args.video is not None:
-        # start, end, len=segmentate(args.segmentation, args.video)
-        # removeFrames(start, end, len, args.video)
-        #renameFramesRestart('/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/'+args.video+'/')
-        toVideo("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+args.video+"/", args.video)
+        start, end, len=segmentate(args.segmentation, args.video)
+        removeFrames(start, end, len, args.video)
+        renameFramesRestart('/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/'+args.video+'/')
+        if args.result:
+            toVideo("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+args.video+"/", args.video)
+            removeAllFrames(0, end-start, args.video)
+        else:
+            renameFramesRestart('/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/'+args.video+'/')
+    else:
+        video="HCULB_00361_procedure_thumbnail.webm"
+        toFrames("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Pruebas/Videos/", video)
+        cutVideo("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/", "/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Pruebas/Videos/HCULB_00361_info.json")
+       #renameFramesRestart("/home/cristina/Documentos/TFG/TFG-EndoscopySegementation/Results/"+video+"/")
+        #start, end, len=segmentateFrames(video)
+        #print("Search ended, start frame: ", start, " end frame: ", end, " original len: ", len)
+        
+
         
 
 

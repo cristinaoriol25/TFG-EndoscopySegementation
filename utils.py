@@ -62,7 +62,13 @@ def indiceToName(i):
     f=name+".png"
     return f
 
+def indiceToString(i):
+    i=str(i)
+    name=i.rjust(6, "0")
+    return name
+
 def renameFrames(path):
+    print("path:", path)
     for file in os.listdir(path):
         name=file
         name=name.split(".")
@@ -71,14 +77,15 @@ def renameFrames(path):
         os.rename(path+file, path+f)
 
 def renameFramesRestart(path):
+    renameFrames(path)
     files=os.listdir(path)
     files=sorted(files)
     i=0
     for file in files:
         name=str(i)
-        name=name[0].rjust(6, "0")
+        name=name.rjust(6, "0")
         f=name+".png"
-        os.rename(path+file, path+name)
+        os.rename(path+file, path+f)
         i+=1
 
 def distancia_euclidea(a, b):
