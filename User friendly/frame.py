@@ -3,7 +3,16 @@ import numpy as np
 from skimage.feature import hog
 
 
+def indiceToName(i):
+    i=str(i)
+    name=i.rjust(6, "0")
+    f=name+".png"
+    return f
 
+def indiceToString(i):
+    i=str(i)
+    name=i.rjust(6, "0")
+    return name
 
 class frame():
 
